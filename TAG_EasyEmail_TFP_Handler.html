@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crew Ops Pro</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --tfp-color: #3498db;
+            --svc-color: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f0f2f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tab-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            margin-bottom: 15px;
+            background: #ddd;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .active-tab {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .full { grid-column: span 2; }
+
+        label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .output-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .clear-btn {
+            background: none;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 500px;
+            cursor: pointer;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: none;
+            z-index: 100;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="tab-container">
+        <div id="tab-tfp" class="tab active-tab" onclick="switchTab('tfp')">TFP</div>
+        <div id="tab-svc" class="tab" onclick="switchTab('svc')">Transpo & Services</div>
+    </div>
+
+    <button class="clear-btn" onclick="clearData()">Clear All Data</button>
+
+    <!-- TFP FORM -->
+    <div id="tfp-form" class="card">
+        <div class="input-grid">
+            <div><label>AC_ID</label><input type="text" id="t-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
+            <div><label>Trip #</label><input type="text" id="t-trip" oninput="runGen()"></div>
+            <div><label>Leg #</label><input type="text" id="t-leg" oninput="runGen()"></div>
+            <div><label>Date (UTC)</label><input type="text" id="t-date" placeholder="DD MMM" oninput="runGen()"></div>
+            <div><label>From</label><input type="text" id="t-from" oninput="syncAndSave('from', this.value)"></div>
+            <div><label>To</label><input type="text" id="t-to" oninput="syncAndSave('to', this.value)"></div>
+            <div><label>FL</label><input type="text" id="t-fl" value="Optimal" oninput="runGen()"></div>
+            <div><label>Speed (M)</label><input type="text" id="t-speed" placeholder="0.80" oninput="runGen()"></div>
+            <div><label>BOW (LBS)</label><input type="text" id="t-bow" oninput="runGen()"></div>
+            <div><label>Payload (LBS)</label><input type="text" id="t-payload" oninput="runGen()"></div>
+            <div class="full"><label>Landing Fuel (LBS)</label><input type="text" id="t-fuel" oninput="runGen()"></div>
+        </div>
+    </div>
+
+    <!-- SERVICE FORM -->
+    <div id="svc-form" class="card hidden">
+        <div class="input-grid">
+            <div><label>AC_ID</label><input type="text" id="s-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
+            <div><label>Date LCL</label><input type="text" id="s-date" oninput="runGen()"></div>
+            <div><label>From</label><input type="text" id="s-from" oninput="syncAndSave('from', this.value)"></div>
+            <div><label>To</label><input type="text" id="s-to" oninput="syncAndSave('to', this.value)"></div>
+            <div class="full">
+                <label>Type</label>
+                <select id="s-type" onchange="runGen()">
+                    <option value="Arrival">Arrival (Airport → Hotel)</option>
+                    <option value="Departure">Departure (Hotel → Airport)</option>
+                </select>
+            </div>
+            <div><label id="lbl-time">ETA (LCL)</label><input type="text" id="s-time" oninput="runGen()"></div>
+            <div><label>Crews</label><input type="number" id="s-crew" value="1" oninput="runGen()"></div>
+            <div class="full"><label>Handler</label><input type="text" id="s-handler" oninput="runGen()"></div>
+            <div class="full"><label>Hotel</label><input type="text" id="s-hotel" oninput="runGen()"></div>
+            <div class="full">
+                <label><input type="checkbox" id="s-add-check" onchange="runGen()"> Include Additional Services</label>
+                <textarea id="s-add-text" rows="2" oninput="runGen()" placeholder="Catering, GPU, etc..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- OUTPUT SECTION -->
+    <div class="card">
+        <label>Subject Line</label>
+        <div id="out-sub" class="output-box" style="font-size: 0.85rem; font-weight: bold;"></div>
+        <button class="copy-btn" onclick="copy('out-sub')">Copy Subject</button>
+        
+        <label style="margin-top:15px;">Email Body</label>
+        <div id="out-body" class="output-box" style="font-size: 0.85rem; white-space: pre-wrap;"></div>
+        <button class="copy-btn" id="btn-body-color" onclick="copy('out-body')">Copy Body</button>
+    </div>
+
+    <div id="toast">Copied!</div>
+
+<script>
+    let currentTab = 'tfp';
+
+    function switchTab(type) {
+        currentTab = type;
+        if(type === 'tfp') {
+            document.getElementById('tfp-form').classList.remove('hidden');
+            document.getElementById('svc-form').classList.add('hidden');
+            document.getElementById('tab-tfp').classList.add('active-tab');
+            document.getElementById('tab-svc').classList.remove('active-tab');
+            document.getElementById('btn-body-color').style.background = 'var(--tfp-color)';
+        } else {
+            document.getElementById('tfp-form').classList.add('hidden');
+            document.getElementById('svc-form').classList.remove('hidden');
+            document.getElementById('tab-svc').classList.add('active-tab');
+            document.getElementById('tab-tfp').classList.remove('active-tab');
+            document.getElementById('btn-body-color').style.background = 'var(--svc-color)';
+        }
+        runGen();
+    }
+
+    function syncAndSave(field, value) {
+        if (field === 'acid') {
+            document.getElementById('t-acid').value = value;
+            document.getElementById('s-acid').value = value;
+        } else if (field === 'from') {
+            document.getElementById('t-from').value = value.toUpperCase();
+            document.getElementById('s-from').value = value.toUpperCase();
+        } else if (field === 'to') {
+            document.getElementById('t-to').value = value.toUpperCase();
+            document.getElementById('s-to').value = value.toUpperCase();
+        }
+        runGen();
+    }
+
+    function runGen() {
+        saveAllData();
+        if (currentTab === 'tfp') genTfp();
+        else genSvc();
+    }
+
+    function genTfp() {
+        const id = document.getElementById('t-acid').value || '"AC_ID"';
+        const trip = document.getElementById('t-trip').value || '"TRIP #"';
+        const leg = document.getElementById('t-leg').value || '"LEG #"';
+        const date = document.getElementById('t-date').value || '"DATE UTC"';
+        const from = document.getElementById('t-from').value.toUpperCase() || '"FROM"';
+        const to = document.getElementById('t-to').value.toUpperCase() || '"TO"';
+        const fl = document.getElementById('t-fl').value || '"FL"';
+        const speed = document.getElementById('t-speed').value || '"SPEED"';
+        const bow = document.getElementById('t-bow').value || '"BOW"';
+        const payload = document.getElementById('t-payload').value || '"Payload"';
+        const fuel = document.getElementById('t-fuel').value || '"Landing Fuel"';
+
+        document.getElementById('out-sub').innerText = `TFP / ${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)`;
+        
+        // Note: The \n\n after "following flight:" creates the requested visual separation
+        document.getElementById('out-body').innerText = `Dear Ops team,\n\nPlease send us a TFP for the following flight:\n\n${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)\n\nFlight Level: ${fl}\nCruise Speed: M${speed}\nBOW: ${bow} lbs\nPayload: ${payload} lbs\nLanding fuel: ${fuel} lbs\n\nThanks for your help and best regards,`;
+    }
+
+    function genSvc() {
+        const id = document.getElementById('s-acid').value || '"AC_ID"';
+        const from = document.getElementById('s-from').value.toUpperCase() || '"FROM"';
+        const to = document.getElementById('s-to').value.toUpperCase() || '"TO"';
+        const date = document.getElementById('s-date').value || '"DATE LCL"';
+        const type = document.getElementById('s-type').value;
+        const handler = document.getElementById('s-handler').value || '"Handler"';
+        const time = document.getElementById('s-time').value || '"ETA"';
+        const hotel = document.getElementById('s-hotel').value || '"Hotel"';
+        const crew = document.getElementById('s-crew').value;
+        
+        document.getElementById('lbl-time').innerText = (type === 'Arrival') ? "ETA (LCL)" : "Pickup Time (LCL)";
+        document.getElementById('out-sub').innerText = `Service Request for ${id} // ${from}-${to} on ${date}`;
+        
+        let body = `Dear ${handler} team,\n\n`;
+        if(type === 'Arrival') {
+            body += `Please organise transportation for ${id}'s ${crew} crews from the airport to the ${hotel} hotel.\nThe current ETA at ${to} is ${time} LCL.\n\n`;
+        } else {
+            body += `Please organise transportation for ${id}'s ${crew} crews from the ${hotel} hotel to the airport at ${time} LCL. Please also forward the car/driver details when available.\n\n`;
+        }
+        
+        if(document.getElementById('s-add-check').checked) {
+            body += `Additional services needed will be: ${document.getElementById('s-add-text').value}\n\n`;
+        }
+        
+        body += `Thanks in advance for your support and best regards,`;
+        document.getElementById('out-body').innerText = body;
+    }
+
+    function saveAllData() {
+        const data = {};
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.type === 'checkbox') data[el.id] = el.checked;
+            else data[el.id] = el.value;
+        });
+        localStorage.setItem('crewOpsData', JSON.stringify(data));
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('crewOpsData');
+        if (saved) {
+            const data = JSON.parse(saved);
+            for (const id in data) {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.type === 'checkbox') el.checked = data[id];
+                    else el.value = data[id];
+                }
+            }
+        }
+        runGen();
+    }
+
+    function clearData() {
+        if(confirm("Are you sure you want to clear all data?")) {
+            localStorage.removeItem('crewOpsData');
+            location.reload();
+        }
+    }
+
+    function copy(id) {
+        const text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text);
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 1500);
+    }
+
+    window.onload = loadData;
+    document.getElementById('btn-body-color').style.background = 'var(--tfp-color)';
+</script>
+</body>
+</html>
