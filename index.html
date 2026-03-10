@@ -9,8 +9,6 @@
     <style>
         :root {
             --primary: #2c3e50;
-            --tfp-color: #3498db;
-            --svc-color: #27ae60;
             --wb-color: #1e3a8a; /* Dark Blue */
             --danger-bg: #fee2e2;
             --danger-text: #b91c1c;
@@ -25,33 +23,42 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 10px;
+            padding: 0 10px 10px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--text);
         }
 
+        /* 1. Sticky Tabs */
         .tab-container {
+            position: sticky;
+            top: 0;
             width: 100%;
             max-width: 500px;
             display: flex;
-            margin-bottom: 15px;
+            background: var(--bg);
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        
+        .tab-inner {
+            display: flex;
+            width: 100%;
             background: #ddd;
             border-radius: 10px;
             padding: 4px;
-            box-sizing: border-box;
         }
 
         .tab {
             flex: 1;
-            padding: 12px 5px;
+            padding: 8px 2px;
             text-align: center;
             cursor: pointer;
             border-radius: 8px;
             font-weight: bold;
             transition: 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             white-space: nowrap;
         }
 
@@ -64,58 +71,68 @@
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 12px;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 10px;
             border: 1px solid var(--border);
+        }
+
+        /* 5. Reduced vertical dimension (2/3 height) */
+        input, select, textarea {
+            width: 100%;
+            padding: 7px 10px; 
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px; /* Prevents iOS zoom */
         }
 
         .input-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .full { grid-column: span 2; }
+        /* 3. Payload Layout: One input per line */
+        .payload-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .payload-row label { margin-bottom: 0; flex: 1; }
+        .payload-row input { width: 85px; text-align: center; }
 
         label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: bold;
             color: #666;
             text-transform: uppercase;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
+        .full { grid-column: span 2; }
 
-        /* W&B Section Styles */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 10px;
-            padding-bottom: 5px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
         }
-        .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
+        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
         
         .reset-btn { 
             background: var(--danger-bg); 
             color: var(--danger-text); 
             border: 1px solid var(--danger-border); 
-            padding: 4px 10px; 
-            border-radius: 6px; 
-            font-size: 0.7rem; 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 0.65rem; 
             font-weight: 700; 
             cursor: pointer; 
             text-transform: uppercase;
@@ -126,72 +143,36 @@
             max-width: 500px;
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
-        .result-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 1.05rem; font-weight: 500; }
-        .val-highlight { font-weight: 800; color: var(--wb-color); }
-        .zfw-row { border-top: 2px solid var(--border); margin-top: 5px; padding-top: 10px; }
-        .bag-controls { display: flex; gap: 5px; margin-bottom: 8px; }
-        .btn-toggle { flex: 1; padding: 8px 2px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); background: #f1f5f9; color: #64748b; border-radius: 4px; cursor: pointer; }
+        .bag-controls { display: flex; gap: 4px; margin-bottom: 6px; flex: 1; max-width: 180px; }
+        .btn-toggle { flex: 1; padding: 5px 2px; font-size: 0.65rem; font-weight: 600; border: 1px solid var(--border); background: #f1f5f9; color: #64748b; border-radius: 4px; cursor: pointer; }
         .btn-toggle.active { background: var(--wb-color); color: white; border-color: var(--wb-color); }
         
-        /* W&B Notes Styles */
-        .note-line { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 5px 0; border-bottom: 1px dashed #f1f5f9; color: #000; }
-        .note-val-bold { font-weight: bold; }
+        /* 4. Output Box Styles */
+        .output-line { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 4px 0; color: #000; border-bottom: 1px dashed #eee; }
+        .output-line:last-child { border-bottom: none; }
+        .out-val { font-weight: 800; color: var(--wb-color); }
+        .out-bold { font-weight: bold; color: #000; }
+        .over-limit { color: var(--danger-text) !important; }
 
-        /* Email Output Styles */
-        .output-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
+        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .output-box { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.8rem; white-space: pre-wrap; color: #000; }
+        .copy-btn-top { padding: 5px 12px; background: var(--wb-color); color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
 
-        .output-box {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 0.85rem;
-            white-space: pre-wrap;
-            word-break: break-word;
-            min-height: 50px;
-            color: #000;
-        }
-
-        .copy-btn-top {
-            padding: 6px 15px;
-            background: var(--wb-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: none;
-            z-index: 100;
-        }
-
+        #toast { position: fixed; bottom: 30px; background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 20px; display: none; z-index: 1001; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="tab-container">
-        <div id="tab-wb" class="tab active-tab" onclick="switchTab('wb')">W&B</div>
-        <div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP</div>
-        <div id="tab-svc" class="tab" onclick="switchTab('svc')">Transpo & Services</div>
+        <div class="tab-inner">
+            <div id="tab-wb" class="tab active-tab" onclick="switchTab('wb')">W&B</div>
+            <div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP</div>
+            <div id="tab-svc" class="tab" onclick="switchTab('svc')">Transpo & Services</div>
+        </div>
     </div>
 
     <div id="clear-container" class="clear-btn-container hidden">
@@ -209,10 +190,7 @@
                 <option value="55503">3 Pilots 0 CC (55503)</option>
                 <option value="55703">3 Pilots 1 CC (55703)</option>
             </select>
-            <div class="result-row" style="margin-top:10px;">
-                <span>BOW (LBS):</span>
-                <span id="displayBOW" class="val-highlight">55481</span>
-            </div>
+            <!-- BOW line removed from here as per note 2 -->
         </div>
 
         <div class="card">
@@ -220,38 +198,41 @@
                 <span class="section-title">Payload Inputs</span>
                 <button class="reset-btn" onclick="resetPayload()">Reset</button>
             </div>
-            <div class="input-grid">
-                <div class="full"><label>Adult(s) @ 203</label><input type="number" id="adult" value="0" min="0" oninput="updatePax()"></div>
-                <div><label>Male(s) @ 203</label><input type="number" id="male" value="5" min="0" oninput="updatePax()"></div>
-                <div><label>Female(s) @ 163</label><input type="number" id="female" value="1" min="0" oninput="updatePax()"></div>
-                <div><label>Child(ren) @ 77</label><input type="number" id="child" value="0" min="0" oninput="updatePax()"></div>
-                <div><label>Infant(s) in own seat @ 77</label><input type="number" id="infant" value="0" min="0" oninput="updatePax()"></div>
-            </div>
+            <!-- 3. One input per line -->
+            <div class="payload-row"><label>Adult(s) @ 203</label><input type="number" id="adult" value="0" min="0" oninput="updatePax()"></div>
+            <div class="payload-row"><label>Male(s) @ 203</label><input type="number" id="male" value="5" min="0" oninput="updatePax()"></div>
+            <div class="payload-row"><label>Female(s) @ 163</label><input type="number" id="female" value="1" min="0" oninput="updatePax()"></div>
+            <div class="payload-row"><label>Child(ren) @ 77</label><input type="number" id="child" value="0" min="0" oninput="updatePax()"></div>
+            <div class="payload-row"><label>Infant(s) in own seat @ 77</label><input type="number" id="infant" value="0" min="0" oninput="updatePax()"></div>
             
-            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div class="bag-controls">
                     <button id="btnDefault" class="btn-toggle active" onclick="setBagMode('default')">Default</button>
                     <button id="btnManualWt" class="btn-toggle" onclick="setBagMode('manualWt')">Manual Wt.</button>
                 </div>
-                <label id="bagLabel">Baggage Qty (35 LBS ea)</label>
-                <input type="number" id="bagInput" value="6" min="0" oninput="manualBagAdjust()">
-            </div>
-            
-            <div class="result-row" style="margin-top: 10px;">
-                <span>Total Payload:</span>
-                <span id="displayPayload" class="val-highlight">1388</span>
-            </div>
-            <div class="result-row zfw-row">
-                <span>Zero Fuel Weight:</span>
-                <span id="displayZFW" class="val-highlight">56869</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label id="bagLabel" style="font-size: 0.6rem; white-space: nowrap; margin:0;">Baggage Qty @ 35</label>
+                    <input type="number" id="bagInput" value="6" min="0" oninput="manualBagAdjust()" style="width: 70px;">
+                </div>
             </div>
         </div>
 
+        <!-- 4. Renamed and adjusted OUTPUT box -->
         <div class="card">
-            <div class="section-header"><span class="section-title">W&B Notes</span></div>
-            <div class="note-line"><span>Mean Pax Wt:</span><span id="meanWt">0.00</span></div>
-            <div class="note-line"><span>Rounded Pax Wt:</span><span id="roundWt" class="note-val-bold">0.00</span></div>
-            <div class="note-line"><span>Adjusted Bag Weight:</span><span id="corrBag" class="note-val-bold">0.00</span></div>
+            <div class="section-header"><span class="section-title">Output</span></div>
+            <div class="output-line">
+                <span>BOW: <span id="out-bow" class="out-val">--</span></span>
+                <span>Payload: <span id="out-payload" class="out-val">--</span></span>
+            </div>
+            <div class="output-line">
+                <span>ZFW: <span id="out-zfw" class="out-val">--</span></span>
+            </div>
+            <div class="output-line">
+                <span>Rounded Average Pax Wt: <span id="out-round" class="out-bold">--</span></span>
+            </div>
+            <div class="output-line">
+                <span>Adjusted Bag Weight: <span id="out-adj-bag" class="out-bold">--</span></span>
+            </div>
         </div>
     </div>
 
@@ -270,14 +251,14 @@
                 <div><label>Landing Fuel (LBS)</label><input type="text" id="t-fuel" oninput="runGen()"></div>
                 <div>
                     <label>PIC</label>
-                    <input list="pic-options" id="t-pic" placeholder="Select or type..." oninput="runGen()">
+                    <input list="pic-options" id="t-pic" placeholder="Select..." oninput="runGen()">
                     <datalist id="pic-options">
                         <option value="Mathieu">
                         <option value="Peh">
                     </datalist>
                 </div>
-                <input type="hidden" id="t-bow">
-                <input type="hidden" id="t-payload">
+                <input type="hidden" id="t-bow-hidden">
+                <input type="hidden" id="t-payload-hidden">
             </div>
         </div>
     </div>
@@ -312,7 +293,7 @@
     <!-- OUTPUT SECTION -->
     <div id="output-container" class="card hidden">
         <div class="output-header">
-            <label style="margin:0;">Consolidated Email (Subject & Body)</label>
+            <label style="margin:0;">Consolidated Email</label>
             <button class="copy-btn-top" onclick="copyCombined()">Copy</button>
         </div>
         <div id="out-combined" class="output-box"></div>
@@ -333,7 +314,6 @@
         document.getElementById('tab-' + type).classList.add('active-tab');
         document.getElementById(type + '-form').classList.remove('hidden');
 
-        // Toggle "Clear All Data" container visibility
         if (type === 'wb') {
             document.getElementById('clear-container').classList.add('hidden');
         } else {
@@ -343,7 +323,6 @@
         runGen();
     }
 
-    // --- W&B LOGIC ---
     function setBagMode(mode) {
         bagMode = mode;
         const btnDef = document.getElementById('btnDefault');
@@ -356,11 +335,11 @@
 
         if (mode === 'default') {
             btnDef.classList.add('active');
-            bagLabel.innerText = "Baggage Qty (35 LBS ea)";
+            bagLabel.innerText = "Baggage Qty @ 35";
             updatePax(); 
         } else {
             btnWt.classList.add('active');
-            bagLabel.innerText = "Total Bag Weight (LBS)";
+            bagLabel.innerText = "Total Weight (LBS)";
             bagInput.value = 500;
         }
         calculate();
@@ -401,29 +380,28 @@
         const totalPayload = totalPaxWt + totalBagWt;
         const zfw = bow + totalPayload;
 
-        document.getElementById('displayBOW').innerText = bow.toLocaleString();
-        document.getElementById('displayPayload').innerText = totalPayload.toLocaleString();
-        const zfwDisplay = document.getElementById('displayZFW');
+        // Update W&B UI
+        document.getElementById('out-bow').innerText = bow.toLocaleString();
+        document.getElementById('out-payload').innerText = totalPayload.toLocaleString();
+        const zfwDisplay = document.getElementById('out-zfw');
         zfwDisplay.innerText = zfw.toLocaleString();
-        zfwDisplay.className = zfw > 60500 ? 'val-highlight over-limit' : 'val-highlight';
+        zfwDisplay.className = zfw > 60500 ? 'out-val over-limit' : 'out-val';
 
-        document.getElementById('t-bow').value = bow;
-        document.getElementById('t-payload').value = totalPayload;
+        // Hidden TFP sync
+        document.getElementById('t-bow-hidden').value = bow;
+        document.getElementById('t-payload-hidden').value = totalPayload;
 
-        let meanWt = 0, roundedWt = 0, correctedBag = 0;
+        let roundedWt = 0, correctedBag = 0;
         if (paxCount > 0) {
-            meanWt = totalPaxWt / paxCount;
-            roundedWt = Math.floor(meanWt);
+            roundedWt = Math.floor(totalPaxWt / paxCount);
             correctedBag = totalPayload - (paxCount * roundedWt);
         }
-        document.getElementById('meanWt').innerText = meanWt.toFixed(2);
-        document.getElementById('roundWt').innerText = roundedWt.toFixed(2);
-        document.getElementById('corrBag').innerText = correctedBag.toLocaleString();
+        document.getElementById('out-round').innerText = roundedWt; // Integer only
+        document.getElementById('out-adj-bag').innerText = correctedBag.toLocaleString();
 
         runGen();
     }
 
-    // --- EMAIL LOGIC ---
     function syncAndSave(field, value) {
         if (field === 'acid') {
             document.getElementById('t-acid').value = value;
@@ -453,8 +431,8 @@
         const to = document.getElementById('t-to').value.toUpperCase() || '"TO"';
         const fl = document.getElementById('t-fl').value || '"FL"';
         const speed = document.getElementById('t-speed').value || '0.90';
-        const bow = document.getElementById('t-bow').value;
-        const payload = document.getElementById('t-payload').value;
+        const bow = document.getElementById('t-bow-hidden').value;
+        const payload = document.getElementById('t-payload-hidden').value;
         const fuel = document.getElementById('t-fuel').value || '"Landing Fuel"';
         const pic = document.getElementById('t-pic').value || '____';
 
@@ -499,11 +477,11 @@
             if (el.type === 'checkbox') data[el.id] = el.checked;
             else data[el.id] = el.value;
         });
-        localStorage.setItem('crewOpsFinal_v4', JSON.stringify(data));
+        localStorage.setItem('crewOpsFinal_v5', JSON.stringify(data));
     }
 
     function loadData() {
-        const saved = localStorage.getItem('crewOpsFinal_v4');
+        const saved = localStorage.getItem('crewOpsFinal_v5');
         if (saved) {
             const data = JSON.parse(saved);
             for (const id in data) {
@@ -519,7 +497,7 @@
 
     function clearData() {
         if(confirm("Are you sure you want to clear all data?")) {
-            localStorage.removeItem('crewOpsFinal_v4');
+            localStorage.removeItem('crewOpsFinal_v5');
             location.reload();
         }
     }
