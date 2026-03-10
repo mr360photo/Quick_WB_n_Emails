@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crew Ops Pro</title>
+    <title>Crew Ops Pro - VP-CTL</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -11,8 +11,14 @@
             --primary: #2c3e50;
             --tfp-color: #3498db;
             --svc-color: #27ae60;
-            --danger: #e74c3c;
+            --wb-color: #1e3a8a; /* Dark Blue */
+            --danger-bg: #fee2e2;
+            --danger-text: #b91c1c;
+            --danger-border: #fecaca;
             --bg: #f0f2f5;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
         }
 
         body {
@@ -23,6 +29,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            color: var(--text);
         }
 
         .tab-container {
@@ -33,17 +40,19 @@
             background: #ddd;
             border-radius: 10px;
             padding: 4px;
+            box-sizing: border-box;
         }
 
         .tab {
             flex: 1;
-            padding: 12px;
+            padding: 12px 5px;
             text-align: center;
             cursor: pointer;
             border-radius: 8px;
             font-weight: bold;
             transition: 0.3s;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
         }
 
         .active-tab {
@@ -59,7 +68,8 @@
             padding: 20px;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
         }
 
         .input-grid {
@@ -88,37 +98,78 @@
             font-size: 16px;
         }
 
+        /* W&B Section Styles */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+        .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
+        
+        .reset-btn { 
+            background: var(--danger-bg); 
+            color: var(--danger-text); 
+            border: 1px solid var(--danger-border); 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            text-transform: uppercase;
+        }
+
+        .clear-btn-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .result-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 1.05rem; font-weight: 500; }
+        .val-highlight { font-weight: 800; color: var(--wb-color); }
+        .zfw-row { border-top: 2px solid var(--border); margin-top: 5px; padding-top: 10px; }
+        .bag-controls { display: flex; gap: 5px; margin-bottom: 8px; }
+        .btn-toggle { flex: 1; padding: 8px 2px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); background: #f1f5f9; color: #64748b; border-radius: 4px; cursor: pointer; }
+        .btn-toggle.active { background: var(--wb-color); color: white; border-color: var(--wb-color); }
+        
+        /* W&B Notes Styles */
+        .note-line { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 5px 0; border-bottom: 1px dashed #f1f5f9; color: #000; }
+        .note-val-bold { font-weight: bold; }
+
+        /* Email Output Styles */
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
         .output-box {
             background: #f8f9fa;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 15px;
-            margin-top: 10px;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            min-height: 50px;
+            color: #000;
         }
 
-        .copy-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--primary);
+        .copy-btn-top {
+            padding: 6px 15px;
+            background: var(--wb-color);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-top: 8px;
-            cursor: pointer;
-        }
-
-        .clear-btn {
-            background: none;
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 8px;
             border-radius: 6px;
-            font-size: 0.8rem;
-            margin-bottom: 15px;
-            width: 100%;
-            max-width: 500px;
+            font-weight: bold;
+            font-size: 0.75rem;
             cursor: pointer;
+            text-transform: uppercase;
         }
 
         #toast {
@@ -132,94 +183,247 @@
             z-index: 100;
         }
 
-        .hidden { display: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="tab-container">
-        <div id="tab-tfp" class="tab active-tab" onclick="switchTab('tfp')">TFP</div>
+        <div id="tab-wb" class="tab active-tab" onclick="switchTab('wb')">W&B</div>
+        <div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP</div>
         <div id="tab-svc" class="tab" onclick="switchTab('svc')">Transpo & Services</div>
     </div>
 
-    <button class="clear-btn" onclick="clearData()">Clear All Data</button>
+    <div id="clear-container" class="clear-btn-container hidden">
+        <button class="reset-btn" onclick="clearData()">Clear All Data</button>
+    </div>
+
+    <!-- W&B FORM -->
+    <div id="wb-form" class="content-section">
+        <div class="card">
+            <div class="section-header"><span class="section-title">VP-CTL Crew Configuration</span></div>
+            <select id="crewConfig" onchange="calculate()">
+                <option value="55281">2 Pilots 0 CC (55281)</option>
+                <option value="55481" selected>2 Pilots 1 CC (55481)</option>
+                <option value="55681">2 Pilots 2 CC (55681)</option>
+                <option value="55503">3 Pilots 0 CC (55503)</option>
+                <option value="55703">3 Pilots 1 CC (55703)</option>
+            </select>
+            <div class="result-row" style="margin-top:10px;">
+                <span>BOW (LBS):</span>
+                <span id="displayBOW" class="val-highlight">55481</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-header">
+                <span class="section-title">Payload Inputs</span>
+                <button class="reset-btn" onclick="resetPayload()">Reset</button>
+            </div>
+            <div class="input-grid">
+                <div class="full"><label>Adult(s) @ 203</label><input type="number" id="adult" value="0" min="0" oninput="updatePax()"></div>
+                <div><label>Male(s) @ 203</label><input type="number" id="male" value="5" min="0" oninput="updatePax()"></div>
+                <div><label>Female(s) @ 163</label><input type="number" id="female" value="1" min="0" oninput="updatePax()"></div>
+                <div><label>Child(ren) @ 77</label><input type="number" id="child" value="0" min="0" oninput="updatePax()"></div>
+                <div><label>Infant(s) in own seat @ 77</label><input type="number" id="infant" value="0" min="0" oninput="updatePax()"></div>
+            </div>
+            
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+                <div class="bag-controls">
+                    <button id="btnDefault" class="btn-toggle active" onclick="setBagMode('default')">Default</button>
+                    <button id="btnManualWt" class="btn-toggle" onclick="setBagMode('manualWt')">Manual Wt.</button>
+                </div>
+                <label id="bagLabel">Baggage Qty (35 LBS ea)</label>
+                <input type="number" id="bagInput" value="6" min="0" oninput="manualBagAdjust()">
+            </div>
+            
+            <div class="result-row" style="margin-top: 10px;">
+                <span>Total Payload:</span>
+                <span id="displayPayload" class="val-highlight">1388</span>
+            </div>
+            <div class="result-row zfw-row">
+                <span>Zero Fuel Weight:</span>
+                <span id="displayZFW" class="val-highlight">56869</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-header"><span class="section-title">W&B Notes</span></div>
+            <div class="note-line"><span>Mean Pax Wt:</span><span id="meanWt">0.00</span></div>
+            <div class="note-line"><span>Rounded Pax Wt:</span><span id="roundWt" class="note-val-bold">0.00</span></div>
+            <div class="note-line"><span>Adjusted Bag Weight:</span><span id="corrBag" class="note-val-bold">0.00</span></div>
+        </div>
+    </div>
 
     <!-- TFP FORM -->
-    <div id="tfp-form" class="card">
-        <div class="input-grid">
-            <div><label>AC_ID</label><input type="text" id="t-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
-            <div><label>Trip #</label><input type="text" id="t-trip" oninput="runGen()"></div>
-            <div><label>Leg #</label><input type="text" id="t-leg" oninput="runGen()"></div>
-            <div><label>Date (UTC)</label><input type="text" id="t-date" placeholder="DD MMM" oninput="runGen()"></div>
-            <div><label>From</label><input type="text" id="t-from" oninput="syncAndSave('from', this.value)"></div>
-            <div><label>To</label><input type="text" id="t-to" oninput="syncAndSave('to', this.value)"></div>
-            <div><label>FL</label><input type="text" id="t-fl" value="Optimal" oninput="runGen()"></div>
-            <div><label>Speed (M)</label><input type="text" id="t-speed" placeholder="0.80" oninput="runGen()"></div>
-            <div><label>BOW (LBS)</label><input type="text" id="t-bow" oninput="runGen()"></div>
-            <div><label>Payload (LBS)</label><input type="text" id="t-payload" oninput="runGen()"></div>
-            <div class="full"><label>Landing Fuel (LBS)</label><input type="text" id="t-fuel" oninput="runGen()"></div>
+    <div id="tfp-form" class="content-section hidden">
+        <div class="card">
+            <div class="input-grid">
+                <div><label>AC_ID</label><input type="text" id="t-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
+                <div><label>Trip #</label><input type="text" id="t-trip" oninput="runGen()"></div>
+                <div><label>Leg #</label><input type="number" id="t-leg" value="1" oninput="runGen()"></div>
+                <div><label>Date (UTC)</label><input type="text" id="t-date" placeholder="DD MMM" oninput="runGen()"></div>
+                <div><label>From</label><input type="text" id="t-from" oninput="syncAndSave('from', this.value)"></div>
+                <div><label>To</label><input type="text" id="t-to" oninput="syncAndSave('to', this.value)"></div>
+                <div><label>FL</label><input type="text" id="t-fl" value="Optimal" oninput="runGen()"></div>
+                <div><label>Speed (M)</label><input type="number" id="t-speed" value="0.90" step="0.01" min="0.80" max="0.90" oninput="runGen()"></div>
+                <div><label>Landing Fuel (LBS)</label><input type="text" id="t-fuel" oninput="runGen()"></div>
+                <div>
+                    <label>PIC</label>
+                    <input list="pic-options" id="t-pic" placeholder="Select or type..." oninput="runGen()">
+                    <datalist id="pic-options">
+                        <option value="Mathieu">
+                        <option value="Peh">
+                    </datalist>
+                </div>
+                <input type="hidden" id="t-bow">
+                <input type="hidden" id="t-payload">
+            </div>
         </div>
     </div>
 
     <!-- SERVICE FORM -->
-    <div id="svc-form" class="card hidden">
-        <div class="input-grid">
-            <div><label>AC_ID</label><input type="text" id="s-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
-            <div><label>Date LCL</label><input type="text" id="s-date" oninput="runGen()"></div>
-            <div><label>From</label><input type="text" id="s-from" oninput="syncAndSave('from', this.value)"></div>
-            <div><label>To</label><input type="text" id="s-to" oninput="syncAndSave('to', this.value)"></div>
-            <div class="full">
-                <label>Type</label>
-                <select id="s-type" onchange="runGen()">
-                    <option value="Arrival">Arrival (Airport → Hotel)</option>
-                    <option value="Departure">Departure (Hotel → Airport)</option>
-                </select>
-            </div>
-            <div><label id="lbl-time">ETA (LCL)</label><input type="text" id="s-time" oninput="runGen()"></div>
-            <div><label>Crews</label><input type="number" id="s-crew" value="1" oninput="runGen()"></div>
-            <div class="full"><label>Handler</label><input type="text" id="s-handler" oninput="runGen()"></div>
-            <div class="full"><label>Hotel</label><input type="text" id="s-hotel" oninput="runGen()"></div>
-            <div class="full">
-                <label><input type="checkbox" id="s-add-check" onchange="runGen()"> Include Additional Services</label>
-                <textarea id="s-add-text" rows="2" oninput="runGen()" placeholder="Catering, GPU, etc..."></textarea>
+    <div id="svc-form" class="content-section hidden">
+        <div class="card">
+            <div class="input-grid">
+                <div><label>AC_ID</label><input type="text" id="s-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
+                <div><label>Date LCL</label><input type="text" id="s-date" oninput="runGen()"></div>
+                <div><label>From</label><input type="text" id="s-from" oninput="syncAndSave('from', this.value)"></div>
+                <div><label>To</label><input type="text" id="s-to" oninput="syncAndSave('to', this.value)"></div>
+                <div class="full">
+                    <label>Type</label>
+                    <select id="s-type" onchange="runGen()">
+                        <option value="Arrival">Arrival (Airport → Hotel)</option>
+                        <option value="Departure">Departure (Hotel → Airport)</option>
+                    </select>
+                </div>
+                <div><label id="lbl-time">ETA (LCL)</label><input type="text" id="s-time" oninput="runGen()"></div>
+                <div><label>Crews</label><input type="number" id="s-crew" value="3" oninput="runGen()"></div>
+                <div class="full"><label>Handler</label><input type="text" id="s-handler" oninput="runGen()"></div>
+                <div class="full"><label>Hotel</label><input type="text" id="s-hotel" oninput="runGen()"></div>
+                <div class="full">
+                    <label><input type="checkbox" id="s-add-check" onchange="runGen()"> Include Additional Services</label>
+                    <textarea id="s-add-text" rows="2" oninput="runGen()" placeholder="Catering, GPU, etc..."></textarea>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- OUTPUT SECTION -->
-    <div class="card">
-        <label>Subject Line</label>
-        <div id="out-sub" class="output-box" style="font-size: 0.85rem; font-weight: bold;"></div>
-        <button class="copy-btn" onclick="copy('out-sub')">Copy Subject</button>
-        
-        <label style="margin-top:15px;">Email Body</label>
-        <div id="out-body" class="output-box" style="font-size: 0.85rem; white-space: pre-wrap;"></div>
-        <button class="copy-btn" id="btn-body-color" onclick="copy('out-body')">Copy Body</button>
+    <div id="output-container" class="card hidden">
+        <div class="output-header">
+            <label style="margin:0;">Consolidated Email (Subject & Body)</label>
+            <button class="copy-btn-top" onclick="copyCombined()">Copy</button>
+        </div>
+        <div id="out-combined" class="output-box"></div>
     </div>
 
     <div id="toast">Copied!</div>
 
 <script>
-    let currentTab = 'tfp';
+    let currentTab = 'wb';
+    let bagMode = 'default';
 
     function switchTab(type) {
         currentTab = type;
-        if(type === 'tfp') {
-            document.getElementById('tfp-form').classList.remove('hidden');
-            document.getElementById('svc-form').classList.add('hidden');
-            document.getElementById('tab-tfp').classList.add('active-tab');
-            document.getElementById('tab-svc').classList.remove('active-tab');
-            document.getElementById('btn-body-color').style.background = 'var(--tfp-color)';
+        document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+        document.getElementById('output-container').classList.add('hidden');
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active-tab'));
+
+        document.getElementById('tab-' + type).classList.add('active-tab');
+        document.getElementById(type + '-form').classList.remove('hidden');
+
+        // Toggle "Clear All Data" container visibility
+        if (type === 'wb') {
+            document.getElementById('clear-container').classList.add('hidden');
         } else {
-            document.getElementById('tfp-form').classList.add('hidden');
-            document.getElementById('svc-form').classList.remove('hidden');
-            document.getElementById('tab-svc').classList.add('active-tab');
-            document.getElementById('tab-tfp').classList.remove('active-tab');
-            document.getElementById('btn-body-color').style.background = 'var(--svc-color)';
+            document.getElementById('clear-container').classList.remove('hidden');
+            document.getElementById('output-container').classList.remove('hidden');
         }
         runGen();
     }
 
+    // --- W&B LOGIC ---
+    function setBagMode(mode) {
+        bagMode = mode;
+        const btnDef = document.getElementById('btnDefault');
+        const btnWt = document.getElementById('btnManualWt');
+        const bagLabel = document.getElementById('bagLabel');
+        const bagInput = document.getElementById('bagInput');
+
+        btnDef.classList.remove('active');
+        btnWt.classList.remove('active');
+
+        if (mode === 'default') {
+            btnDef.classList.add('active');
+            bagLabel.innerText = "Baggage Qty (35 LBS ea)";
+            updatePax(); 
+        } else {
+            btnWt.classList.add('active');
+            bagLabel.innerText = "Total Bag Weight (LBS)";
+            bagInput.value = 500;
+        }
+        calculate();
+    }
+
+    function manualBagAdjust() {
+        if (bagMode === 'default') bagMode = 'manualQty';
+        document.getElementById('btnDefault').classList.remove('active');
+        calculate();
+    }
+
+    function updatePax() {
+        if (bagMode === 'default') {
+            const counts = ['adult', 'male', 'female', 'child', 'infant'].map(id => parseInt(document.getElementById(id).value) || 0);
+            document.getElementById('bagInput').value = counts.reduce((a, b) => a + b, 0);
+        }
+        calculate();
+    }
+
+    function resetPayload() {
+        ['adult', 'male', 'female', 'child', 'infant'].forEach(id => document.getElementById(id).value = 0);
+        setBagMode('default');
+    }
+
+    function calculate() {
+        const bow = parseInt(document.getElementById('crewConfig').value);
+        const adult = parseInt(document.getElementById('adult').value) || 0;
+        const male = parseInt(document.getElementById('male').value) || 0;
+        const female = parseInt(document.getElementById('female').value) || 0;
+        const child = parseInt(document.getElementById('child').value) || 0;
+        const infant = parseInt(document.getElementById('infant').value) || 0;
+        const bagVal = parseInt(document.getElementById('bagInput').value) || 0;
+
+        const paxCount = adult + male + female + child + infant;
+        const totalPaxWt = (adult * 203) + (male * 203) + (female * 163) + (child * 77) + (infant * 77);
+        
+        let totalBagWt = (bagMode === 'manualWt') ? bagVal : bagVal * 35;
+        const totalPayload = totalPaxWt + totalBagWt;
+        const zfw = bow + totalPayload;
+
+        document.getElementById('displayBOW').innerText = bow.toLocaleString();
+        document.getElementById('displayPayload').innerText = totalPayload.toLocaleString();
+        const zfwDisplay = document.getElementById('displayZFW');
+        zfwDisplay.innerText = zfw.toLocaleString();
+        zfwDisplay.className = zfw > 60500 ? 'val-highlight over-limit' : 'val-highlight';
+
+        document.getElementById('t-bow').value = bow;
+        document.getElementById('t-payload').value = totalPayload;
+
+        let meanWt = 0, roundedWt = 0, correctedBag = 0;
+        if (paxCount > 0) {
+            meanWt = totalPaxWt / paxCount;
+            roundedWt = Math.floor(meanWt);
+            correctedBag = totalPayload - (paxCount * roundedWt);
+        }
+        document.getElementById('meanWt').innerText = meanWt.toFixed(2);
+        document.getElementById('roundWt').innerText = roundedWt.toFixed(2);
+        document.getElementById('corrBag').innerText = correctedBag.toLocaleString();
+
+        runGen();
+    }
+
+    // --- EMAIL LOGIC ---
     function syncAndSave(field, value) {
         if (field === 'acid') {
             document.getElementById('t-acid').value = value;
@@ -237,26 +441,27 @@
     function runGen() {
         saveAllData();
         if (currentTab === 'tfp') genTfp();
-        else genSvc();
+        if (currentTab === 'svc') genSvc();
     }
 
     function genTfp() {
         const id = document.getElementById('t-acid').value || '"AC_ID"';
         const trip = document.getElementById('t-trip').value || '"TRIP #"';
-        const leg = document.getElementById('t-leg').value || '"LEG #"';
+        const leg = document.getElementById('t-leg').value || '1';
         const date = document.getElementById('t-date').value || '"DATE UTC"';
         const from = document.getElementById('t-from').value.toUpperCase() || '"FROM"';
         const to = document.getElementById('t-to').value.toUpperCase() || '"TO"';
         const fl = document.getElementById('t-fl').value || '"FL"';
-        const speed = document.getElementById('t-speed').value || '"SPEED"';
-        const bow = document.getElementById('t-bow').value || '"BOW"';
-        const payload = document.getElementById('t-payload').value || '"Payload"';
+        const speed = document.getElementById('t-speed').value || '0.90';
+        const bow = document.getElementById('t-bow').value;
+        const payload = document.getElementById('t-payload').value;
         const fuel = document.getElementById('t-fuel').value || '"Landing Fuel"';
+        const pic = document.getElementById('t-pic').value || '____';
 
-        document.getElementById('out-sub').innerText = `TFP / ${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)`;
+        const subject = `TFP / ${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)`;
+        const body = `Dear Ops team,\n\nPlease send us a TFP for the following flight:\n\n${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)\n\nPIC: ${pic}\n\nFlight Level: ${fl}\nCruise Speed: M${speed}\nBOW: ${bow} lbs\nPayload: ${payload} lbs\nLanding fuel: ${fuel} lbs\n\nThanks for your help and best regards,`;
         
-        // Note: The \n\n after "following flight:" creates the requested visual separation
-        document.getElementById('out-body').innerText = `Dear Ops team,\n\nPlease send us a TFP for the following flight:\n\n${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)\n\nFlight Level: ${fl}\nCruise Speed: M${speed}\nBOW: ${bow} lbs\nPayload: ${payload} lbs\nLanding fuel: ${fuel} lbs\n\nThanks for your help and best regards,`;
+        document.getElementById('out-combined').innerText = subject + "\n\n" + body;
     }
 
     function genSvc() {
@@ -271,7 +476,7 @@
         const crew = document.getElementById('s-crew').value;
         
         document.getElementById('lbl-time').innerText = (type === 'Arrival') ? "ETA (LCL)" : "Pickup Time (LCL)";
-        document.getElementById('out-sub').innerText = `Service Request for ${id} // ${from}-${to} on ${date}`;
+        const subject = `Service Request for ${id} // ${from}-${to} on ${date}`;
         
         let body = `Dear ${handler} team,\n\n`;
         if(type === 'Arrival') {
@@ -283,9 +488,9 @@
         if(document.getElementById('s-add-check').checked) {
             body += `Additional services needed will be: ${document.getElementById('s-add-text').value}\n\n`;
         }
-        
         body += `Thanks in advance for your support and best regards,`;
-        document.getElementById('out-body').innerText = body;
+        
+        document.getElementById('out-combined').innerText = subject + "\n\n" + body;
     }
 
     function saveAllData() {
@@ -294,11 +499,11 @@
             if (el.type === 'checkbox') data[el.id] = el.checked;
             else data[el.id] = el.value;
         });
-        localStorage.setItem('crewOpsData', JSON.stringify(data));
+        localStorage.setItem('crewOpsFinal_v4', JSON.stringify(data));
     }
 
     function loadData() {
-        const saved = localStorage.getItem('crewOpsData');
+        const saved = localStorage.getItem('crewOpsFinal_v4');
         if (saved) {
             const data = JSON.parse(saved);
             for (const id in data) {
@@ -309,18 +514,18 @@
                 }
             }
         }
-        runGen();
+        calculate(); 
     }
 
     function clearData() {
         if(confirm("Are you sure you want to clear all data?")) {
-            localStorage.removeItem('crewOpsData');
+            localStorage.removeItem('crewOpsFinal_v4');
             location.reload();
         }
     }
 
-    function copy(id) {
-        const text = document.getElementById(id).innerText;
+    function copyCombined() {
+        const text = document.getElementById('out-combined').innerText;
         navigator.clipboard.writeText(text);
         const t = document.getElementById('toast');
         t.style.display = 'block';
@@ -328,7 +533,6 @@
     }
 
     window.onload = loadData;
-    document.getElementById('btn-body-color').style.background = 'var(--tfp-color)';
 </script>
 </body>
 </html>
